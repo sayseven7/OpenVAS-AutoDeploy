@@ -46,6 +46,18 @@ sudo ./Openvas_Seven.sh
 
 ---
 
+# Custom Password (Optional)
+
+You can define the admin password before installation:
+
+```bash
+sudo GVM_ADMIN_PASSWORD='YourStrongPassword' ./Openvas_Seven.sh
+```
+
+If omitted, Greenbone generates a random password automatically during first startup.
+
+---
+
 # Feed Synchronization Monitoring
 
 The first startup may take several minutes because Greenbone needs to load:
@@ -111,11 +123,11 @@ Environment fully operational after synchronization, with NVT database loaded an
 # Default Access
 
 ```text
-URL: https://127.0.0.1
+URL: http://127.0.0.1
 User: admin
 ```
 
-Password is generated during first startup by Greenbone.
+Password is generated during first startup if not manually defined.
 
 ---
 
