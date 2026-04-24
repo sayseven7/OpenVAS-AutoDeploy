@@ -38,7 +38,7 @@ README.md
 Clone the repository:
 
 ```bash
-git clone https://github.com/sayseven7/Openvas-Seven.git
+git clone https://github.com/sayseven7/OpenVAS-AutoDeploy
 cd Openvas-Seven
 chmod +x Openvas_Seven.sh
 sudo ./Openvas_Seven.sh
