@@ -148,22 +148,6 @@ Password is generated during first startup if not manually defined.
 
 ---
 
-# Recommended Topics
-
-```text
-openvas
-greenbone
-docker
-ubuntu
-vulnerability-scanner
-security-tools
-cybersecurity
-automation
-bash
-```
-
----
-
 # Author
 
 Lucas Morais (SaySeven / @sayseven7)
