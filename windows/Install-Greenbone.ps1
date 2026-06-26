@@ -192,10 +192,27 @@ function Start-GreenboneContainers {
 
     Invoke-DockerCompose @('pull')
 
-    Write-Log 'Starting all containers in detached mode...' -Level Info
-    Invoke-DockerCompose @('up', '-d')
+    # Data containers (scap-data, cert-bund-data, ...) load their datasets into
+    # PostgreSQL and can fail their healthcheck on the very first boot if pg-gvm
+    # is still initialising. The data already lands in the volumes, so retrying
+    # 'up -d' reliably brings the stack up.
+    $maxAttempts = 3
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+        Write-Log "Starting all containers in detached mode (attempt $attempt/$maxAttempts)..." -Level Info
+        try {
+            Invoke-DockerCompose @('up', '-d')
+            Write-Log 'All containers started.' -Level Success
+            return
+        } catch {
+            if ($attempt -lt $maxAttempts) {
+                Write-Log 'A container healthcheck failed (commonly scap-data, due to first-boot timing).' -Level Warning
+                Write-Log 'Retrying in 20s -- datasets are already in the volumes...' -Level Warning
+                Start-Sleep -Seconds 20
+            }
+        }
+    }
 
-    Write-Log 'All containers started.' -Level Success
+    Exit-WithError "Containers failed to start after $maxAttempts attempts. Inspect logs with: .\Get-Logs.ps1 scap-data"
 }
 
 # ---------------------------------------------------------------------------

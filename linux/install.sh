@@ -179,8 +179,25 @@ pull_and_start() {
   log "Pulling Greenbone Community Edition container images (this may take several minutes)..."
   docker compose -f "$COMPOSE_FILE" pull
 
-  log "Starting all containers in detached mode..."
-  docker compose -f "$COMPOSE_FILE" up -d
+  # Data containers (scap-data, cert-bund-data, ...) load their datasets into
+  # PostgreSQL and can fail their healthcheck on the very first boot if pg-gvm
+  # is still initialising. The data already lands in the volumes, so retrying
+  # `up -d` reliably brings the stack up.
+  local attempt max_attempts=3
+  for (( attempt = 1; attempt <= max_attempts; attempt++ )); do
+    log "Starting all containers in detached mode (attempt ${attempt}/${max_attempts})..."
+    if docker compose -f "$COMPOSE_FILE" up -d; then
+      log "All containers started."
+      return 0
+    fi
+    if (( attempt < max_attempts )); then
+      warn "A container healthcheck failed (commonly scap-data, due to first-boot timing)."
+      warn "Retrying in 20s — datasets are already in the volumes..."
+      sleep 20
+    fi
+  done
+
+  die "Containers failed to start after ${max_attempts} attempts. Inspect logs with: ./logs.sh scap-data"
 }
 
 set_admin_password() {

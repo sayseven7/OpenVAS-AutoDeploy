@@ -5,7 +5,15 @@
 # ---------------------------------------------------------------------------
 # Configuration — override via environment variables before sourcing
 # ---------------------------------------------------------------------------
-DOWNLOAD_DIR="${DOWNLOAD_DIR:-$HOME/greenbone-community-container}"
+# Resolve the invoking user's home even when the script is run under `sudo`
+# (sudo resets $HOME to /root). This keeps install.sh and the management
+# scripts pointing at the same deployment directory regardless of sudo.
+if [[ -n "${SUDO_USER:-}" && "${SUDO_USER}" != "root" ]]; then
+  _USER_HOME="$(getent passwd "$SUDO_USER" | cut -d: -f6)"
+fi
+_USER_HOME="${_USER_HOME:-$HOME}"
+
+DOWNLOAD_DIR="${DOWNLOAD_DIR:-$_USER_HOME/greenbone-community-container}"
 COMPOSE_FILE="$DOWNLOAD_DIR/compose.yaml"
 COMPOSE_URL="${COMPOSE_URL:-https://greenbone.github.io/docs/latest/_static/compose.yaml}"
 LOG_FILE="${LOG_FILE:-$DOWNLOAD_DIR/openvas-autodeploy.log}"
