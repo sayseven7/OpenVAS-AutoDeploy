@@ -99,10 +99,18 @@ show_summary() {
 follow_sync() {
   header "Feed Synchronisation — Live  (Ctrl+C to stop)"
   info "Compose file: $COMPOSE_FILE"
+  info "Filter: $SYNC_PATTERN"
   echo
 
-  dc logs -f gvmd ospd-openvas 2>/dev/null \
+  # --tail=200 prints recent matching lines immediately so the screen is never
+  # blank while we wait for new output. grep returns 1 when nothing matches yet,
+  # and docker logs may exit non-zero; neither should abort the script under
+  # 'set -euo pipefail', so we relax it for this streaming pipeline. Docker
+  # errors are kept visible (no 2>/dev/null) to aid diagnosis.
+  set +e +o pipefail
+  dc logs -f --tail=200 gvmd ospd-openvas \
     | grep --line-buffered -Ei "$SYNC_PATTERN"
+  set -e -o pipefail
 }
 
 follow_all() {
