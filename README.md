@@ -42,12 +42,13 @@ One-command deployment of a full vulnerability scanning platform — no manual c
 
 Supported platforms:
 
-| Platform | Script language | Status |
-|---|---|---|
-| Ubuntu 22.04 / 24.04 | Bash | ✅ Stable |
-| Debian 11 / 12 | Bash | ✅ Best-effort |
-| Windows 10 (20H1+) | PowerShell | ✅ Stable |
-| Windows 11 | PowerShell | ✅ Stable |
+| Platform | Architecture | Script language | Status |
+|---|---|---|---|
+| Ubuntu 22.04 / 24.04 / 26.04 | x86_64 | Bash | ✅ Stable |
+| Debian 11 / 12 | x86_64 | Bash | ✅ Best-effort |
+| Linux (ARM64) | arm64 | Bash | 🧪 Community-supported |
+| Windows 10 (20H1+) | x86_64 | PowerShell | ✅ Stable |
+| Windows 11 | x86_64 | PowerShell | ✅ Stable |
 
 ---
 
@@ -81,10 +82,11 @@ Supported platforms:
 
 | Requirement | Minimum | Recommended |
 |---|---|---|
-| OS | Ubuntu 22.04 / Debian 11 | Ubuntu 24.04 |
+| OS | Ubuntu 22.04 / Debian 11 | Ubuntu 24.04 LTS |
+| Architecture | x86_64 | x86_64 (arm64 community-supported) |
 | CPU | 2 cores | 4+ cores |
 | RAM | 4 GB | 8 GB |
-| Disk | 15 GB free | 30 GB free |
+| Disk | 20 GB free | 30 GB free |
 | Network | Internet access | — |
 | Privileges | `sudo` | — |
 
@@ -481,7 +483,7 @@ gvmd initialises asynchronously. Wait for it to be fully running then retry:
 | **Backup/restore scripts** | Export/import scan results and policies |
 | **Reverse proxy config** | Nginx / Caddy template for public exposure with proper TLS |
 | **CI/CD testing** | GitHub Actions pipeline to validate scripts on each push |
-| **ARM64 Linux** | Raspberry Pi / Oracle Cloud ARM instances |
+| **Official ARM64 testing** | Validate the existing arm64 community support on Raspberry Pi / Oracle Cloud ARM instances |
 
 ---
 
