@@ -9,8 +9,11 @@
 [![Docker](https://img.shields.io/badge/requires-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Greenbone](https://img.shields.io/badge/Greenbone-Community%20Edition-4CB748?style=flat-square)](https://www.greenbone.net/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
+[![YouTube](https://img.shields.io/badge/YouTube-Watch%20Tutorial-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/TF79Z_MpnVU)
 
 One-command deployment of a full vulnerability scanning platform — no manual configuration required.
+
+📺 **[Watch the video tutorial on YouTube](https://youtu.be/TF79Z_MpnVU)** — a practical, step-by-step walkthrough.
 
 </div>
 
@@ -19,6 +22,7 @@ One-command deployment of a full vulnerability scanning platform — no manual c
 ## Table of Contents
 
 - [Overview](#overview)
+- [Video Tutorial](#video-tutorial)
 - [Features](#features)
 - [Requirements](#requirements)
 - [Repository Structure](#repository-structure)
@@ -49,6 +53,20 @@ Supported platforms:
 | Linux (ARM64) | arm64 | Bash | 🧪 Community-supported |
 | Windows 10 (20H1+) | x86_64 | PowerShell | ✅ Stable |
 | Windows 11 | x86_64 | PowerShell | ✅ Stable |
+
+---
+
+## Video Tutorial
+
+Prefer to watch instead of read? This video walks through the entire process in practice — from running the installer to accessing the Greenbone web interface.
+
+<div align="center">
+
+[![Watch the tutorial on YouTube](https://img.youtube.com/vi/TF79Z_MpnVU/maxresdefault.jpg)](https://youtu.be/TF79Z_MpnVU)
+
+▶️ **[Watch on YouTube](https://youtu.be/TF79Z_MpnVU)**
+
+</div>
 
 ---
 
