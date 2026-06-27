@@ -113,8 +113,9 @@ function Install-DockerDesktop {
             winget install --id Docker.DockerDesktop --accept-source-agreements --accept-package-agreements --silent
             if ($LASTEXITCODE -eq 0) {
                 Write-Log 'Docker Desktop installed via winget.' -Level Success
+                Update-SessionPath
                 Start-DockerDesktop
-                Wait-DockerReady
+                Wait-DockerReady -TimeoutSeconds $Global:OVAConfig.DockerFirstStartTimeoutSec
                 return
             }
         } catch {
@@ -145,8 +146,9 @@ function Install-DockerDesktop {
     Write-Log 'Docker Desktop installation completed.' -Level Success
     Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
 
+    Update-SessionPath
     Start-DockerDesktop
-    Wait-DockerReady
+    Wait-DockerReady -TimeoutSeconds $Global:OVAConfig.DockerFirstStartTimeoutSec
 }
 
 function Start-DockerDesktop {
@@ -157,7 +159,11 @@ function Start-DockerDesktop {
 
     if ($desktopExe) {
         Write-Log 'Launching Docker Desktop...' -Level Info
-        Start-Process -FilePath $desktopExe -WindowStyle Hidden
+        # Do NOT hide the window: on a first-time install Docker Desktop may show
+        # a service-agreement / setup dialog that the user must accept before the
+        # engine starts. A hidden window would block the deployment indefinitely.
+        Start-Process -FilePath $desktopExe
+        Write-Log 'If Docker Desktop shows a first-run setup or license prompt, accept it.' -Level Dim
         Start-Sleep -Seconds 10
     } else {
         Write-Log 'Docker Desktop executable not found in standard locations. Start it manually if needed.' -Level Warning

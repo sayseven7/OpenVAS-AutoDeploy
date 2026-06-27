@@ -20,7 +20,8 @@ $Global:OVAConfig = @{
     LogFile         = ''          # resolved at runtime
     MinRamGB        = 4
     MinDiskGB       = 20
-    DockerStartupTimeoutSec = 120
+    DockerStartupTimeoutSec      = 120   # Docker already installed -- just needs to boot
+    DockerFirstStartTimeoutSec   = 360   # Fresh install -- WSL2 back-end setup on first boot
 }
 
 $Global:OVAConfig.ComposeFile = Join-Path $Global:OVAConfig.DeployDir 'compose.yaml'
@@ -174,9 +175,27 @@ function Assert-SystemResources {
 }
 
 # ---------------------------------------------------------------------------
+# Environment helpers
+# ---------------------------------------------------------------------------
+# After installing Docker Desktop (winget or installer), the new PATH entries
+# are written to the Machine/User environment but are NOT reflected in the
+# current PowerShell session. Without this refresh, 'docker' is not found and
+# every readiness probe fails even while Docker is starting normally.
+function Update-SessionPath {
+    $machine = [System.Environment]::GetEnvironmentVariable('Path', 'Machine')
+    $user    = [System.Environment]::GetEnvironmentVariable('Path', 'User')
+    $env:Path = (@($machine, $user) | Where-Object { $_ }) -join ';'
+}
+
+# ---------------------------------------------------------------------------
 # Docker helpers
 # ---------------------------------------------------------------------------
 function Test-DockerInstalled {
+    if ($null -ne (Get-Command docker -ErrorAction SilentlyContinue)) {
+        return $true
+    }
+    # PATH in this session may be stale right after install -- refresh and retry.
+    Update-SessionPath
     return ($null -ne (Get-Command docker -ErrorAction SilentlyContinue))
 }
 
@@ -232,11 +251,19 @@ function Invoke-DockerCompose {
 function Wait-DockerReady {
     param([int]$TimeoutSeconds = $Global:OVAConfig.DockerStartupTimeoutSec)
 
+    # Make sure the freshly-installed docker CLI is resolvable in this session.
+    Update-SessionPath
+
     Write-Log "Waiting for Docker Desktop to start (timeout: ${TimeoutSeconds}s)..." -Level Info
+    Write-Log 'First boot after install can take several minutes (WSL2 back-end setup).' -Level Dim
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 
     while ((Get-Date) -lt $deadline) {
+        # Refresh PATH each loop -- the CLI shim may only appear once the engine
+        # finishes provisioning on a first-time install.
+        Update-SessionPath
         if (Test-DockerRunning) {
+            Write-Host ''
             Write-Log 'Docker Desktop is ready.' -Level Success
             return
         }
@@ -245,7 +272,12 @@ function Wait-DockerReady {
     }
 
     Write-Host ''
-    Exit-WithError "Docker Desktop did not start within ${TimeoutSeconds} seconds. Start it manually and retry."
+    Write-Log "Docker Desktop did not become ready within ${TimeoutSeconds} seconds." -Level Error
+    Write-Log 'On a fresh install this usually means Docker is still finishing its first-run setup' -Level Warning
+    Write-Log '(or is waiting for you to accept the service agreement in its window).' -Level Warning
+    Write-Log 'Open Docker Desktop, wait until the whale icon stops animating, then re-run:' -Level Warning
+    Write-Log '    .\Install-Greenbone.ps1 -SkipDockerInstall' -Level Warning
+    exit 1
 }
 
 # Export all public functions (config is $Global:OVAConfig -- no export needed)
